@@ -10,8 +10,8 @@ def send_reset_password_email(email, token):
         recipients=[email]
     )
     msg.body = f'''To reset your password, visit the following link:
-{request.host_url}reset-password?token={token}
+    {request.host_url}reset-password?token={token}
 
-If you did not make this request, please ignore this email.
-'''
-mail.send(msg)
+    If you did not make this request, please ignore this email.
+    '''
+    mail.send(msg)

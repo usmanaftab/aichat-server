@@ -7,10 +7,87 @@ from datetime import datetime, timedelta
 import requests
 
 auth = Blueprint('auth', __name__)
+def validate_registration_data(data):
+    required_fields = ['email', 'first_name', 'last_name', 'password']
+    errors = {
+        'email': [],
+        'first_name': [],
+        'last_name': [],
+        'password': [],
+        'general': []
+    }
+    
+    # Check if all required fields are present
+    for field in required_fields:
+        if field not in data:
+            errors['general'].append(f'Missing required field: {field}')
+            
+    # Validate email format
+    if 'email' in data:
+        if not isinstance(data['email'], str) or '@' not in data['email']:
+            errors['email'].append('Invalid email format')
+        
+    # Validate string fields
+    if 'first_name' in data:
+        if not isinstance(data['first_name'], str) or len(data['first_name'].strip()) == 0:
+            errors['first_name'].append('First name must be a non-empty string')
+        
+    if 'last_name' in data:
+        if not isinstance(data['last_name'], str) or len(data['last_name'].strip()) == 0:
+            errors['last_name'].append('Last name must be a non-empty string')
+        
+    # Validate password
+    if 'password' in data:
+        if not isinstance(data['password'], str) or len(data['password']) < 8:
+            errors['password'].append('Password must be at least 8 characters long')
+        
+    # Remove empty error lists
+    errors = {k: v for k, v in errors.items() if v}
+    
+    return len(errors) == 0, errors if errors else None
+def validate_login_data(data):
+    required_fields = ['email', 'password']
+    
+    # Check if all required fields are present
+    for field in required_fields:
+        if field not in data:
+            return False, f'Missing required field: {field}'
+            
+    # Validate email format
+    if not isinstance(data['email'], str) or '@' not in data['email']:
+        return False, 'Invalid email format'
+            
+    return True, None
+
+def validate_forgot_password_data(data):
+    if 'email' not in data:
+        return False, 'Missing required field: email'
+        
+    if not isinstance(data['email'], str) or '@' not in data['email']:
+        return False, 'Invalid email format'
+        
+    return True, None
+
+def validate_reset_password_data(data):
+    required_fields = ['token', 'password']
+    
+    for field in required_fields:
+        if field not in data:
+            return False, f'Missing required field: {field}'
+            
+    if not isinstance(data['password'], str) or len(data['password']) < 8:
+        return False, 'Password must be at least 8 characters long'
+            
+    return True, None
+
 
 @auth.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
+    
+    is_valid, errors = validate_registration_data(data)
+    if not is_valid:
+        return {'message': 'Validation failed', 'errors': errors}, 400
 
     if User.objects(email=data['email']).first():
         return {'message': 'Email already registered'}, 400
@@ -24,7 +101,6 @@ def register():
     user.save()
 
     return {'message': 'User registered successfully'}, 201
-
 @auth.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
