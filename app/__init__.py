@@ -5,6 +5,7 @@ from app.config import Config
 from app.utils.email import mail
 from dotenv import load_dotenv
 import os
+from flask_cors import CORS
 
 load_dotenv()
 
@@ -36,5 +37,13 @@ def create_app(config_class=Config):
             return 'Connected to MongoDB!'
         except Exception as e:
             return f'Failed to connect to MongoDB: {str(e)}'
+
+    CORS(app, resources={
+        r"/*": {
+            "origins": ["http://localhost:3000"],
+            "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+            "supports_credentials": True
+        }
+    })
 
     return app
