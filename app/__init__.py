@@ -53,7 +53,7 @@ def create_app(config_class=Config):
 
     CORS(app, resources={
         r"/*": {
-            "origins": ["http://localhost:3000"],
+            "origins": ["http://localhost:3000", "https://usmanaftab.github.io"],
             "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
             "supports_credentials": True
         }
