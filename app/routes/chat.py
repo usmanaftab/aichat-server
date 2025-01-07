@@ -4,11 +4,14 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.chat import Chat
 import requests
 import uuid
+from app.utils.request_limiter import check_request_quota
+from app.models.request_quota import RequestQuota
 
 chat = Blueprint('chat', __name__)
 
 @chat.route('/send', methods=['POST'])
 @jwt_required()
+@check_request_quota
 def send_chat():
     try:
         user_id = get_jwt_identity()
@@ -16,6 +19,9 @@ def send_chat():
         
         if not data or 'message' not in data:
             return jsonify({'error': 'Message is required'}), 400
+
+        # Get remaining requests for response
+        remaining_requests = RequestQuota.get_remaining_requests(user_id)
 
         # Get or create chat context
         context_id = data.get('context_id')
@@ -67,16 +73,31 @@ def send_chat():
             return jsonify({
                 'response': ai_response,
                 'context_id': context_id,
-                'success': True
+                'success': True,
+                'quota': {
+                    'remaining_requests': remaining_requests,
+                    'max_requests': 15,
+                    'reset_time': 'midnight UTC'
+                }
             })
         else:
             return jsonify({
                 'error': 'Failed to get response from LLM',
-                'status': response.status_code
+                'status': response.status_code,
+                'quota': {
+                    'remaining_requests': remaining_requests,
+                    'max_requests': 15,
+                    'reset_time': 'midnight UTC'
+                }
             }), 500
 
     except Exception as e:
         return jsonify({
             'error': str(e),
-            'success': False
+            'success': False,
+            'quota': {
+                'remaining_requests': RequestQuota.get_remaining_requests(user_id) - 1,
+                'max_requests': 15,
+                'reset_time': 'midnight UTC'
+            }
         }), 500 

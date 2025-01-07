@@ -1,9 +1,13 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.user import User
+from app.models.request_quota import RequestQuota
+from app.utils.logger import get_logger
 
 # Create users Blueprint
 users = Blueprint('users', __name__)
+
+logger = get_logger(__name__)
 
 @users.route('/profile', methods=['GET'])
 @jwt_required()
@@ -23,4 +27,18 @@ def get_profile():
         'first_name': user.first_name,
         'last_name': user.last_name,
         'oauth_provider': user.oauth_provider if hasattr(user, 'oauth_provider') else None
-    }, 200 
+    }, 200
+
+@users.route('/quota', methods=['GET'])
+@jwt_required()
+def get_quota():
+    current_user = get_jwt_identity()
+    remaining = RequestQuota.get_remaining_requests(current_user)
+
+    logger.info(f"User {current_user} has {remaining} requests remaining")
+
+    return jsonify({
+        "remaining_requests": remaining,
+        "max_requests": 15,
+        "reset_time": "midnight UTC"
+    })
