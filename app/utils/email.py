@@ -1,4 +1,4 @@
-from flask import current_app
+from flask import current_app, request
 from flask_mail import Message, Mail
 
 mail = Mail()
