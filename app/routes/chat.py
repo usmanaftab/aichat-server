@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.chat import Chat
@@ -51,7 +52,7 @@ def send_chat():
             result = response.json()
             ai_response = result.get('response', '')
 
-            # Save messages to context
+            # Save messages to context and set TTL
             chat_session.messages.append({
                 'role': 'user',
                 'content': data['message']
@@ -60,6 +61,7 @@ def send_chat():
                 'role': 'assistant',
                 'content': ai_response
             })
+            chat_session.ttl = datetime.utcnow() + timedelta(days=2)
             chat_session.save()
 
             return jsonify({
