@@ -45,6 +45,7 @@ def validate_registration_data(data):
     errors = {k: v for k, v in errors.items() if v}
     
     return len(errors) == 0, errors if errors else None
+
 def validate_login_data(data):
     required_fields = ['email', 'password']
     
@@ -101,9 +102,16 @@ def register():
     user.save()
 
     return {'message': 'User registered successfully'}, 201
+
 @auth.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
+    
+    # Add validation
+    is_valid, error = validate_login_data(data)
+    if not is_valid:
+        return {'message': error}, 400
+
     user = User.objects(email=data['email']).first()
 
     if not user or not user.check_password(data['password']):
@@ -115,6 +123,12 @@ def login():
 @auth.route('/forgot-password', methods=['POST'])
 def forgot_password():
     data = request.get_json()
+    
+    # Add validation
+    is_valid, error = validate_forgot_password_data(data)
+    if not is_valid:
+        return {'message': error}, 400
+
     user = User.objects(email=data['email']).first()
 
     if not user:
@@ -131,6 +145,12 @@ def forgot_password():
 @auth.route('/reset-password', methods=['POST'])
 def reset_password():
     data = request.get_json()
+    
+    # Add validation
+    is_valid, error = validate_reset_password_data(data)
+    if not is_valid:
+        return {'message': error}, 400
+
     user = User.objects(reset_password_token=data['token']).first()
 
     if not user or user.reset_password_expires < datetime.utcnow():
