@@ -15,3 +15,12 @@ def send_reset_password_email(email, token):
     If you did not make this request, please ignore this email.
     '''
     mail.send(msg)
+
+def send_email(email, subject, body):
+    msg = Message(
+        subject,
+        sender=current_app.config['MAIL_USERNAME'],
+        recipients=[email]
+    )
+    msg.body = body
+    mail.send(msg)

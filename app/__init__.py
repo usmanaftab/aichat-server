@@ -34,10 +34,12 @@ def create_app(config_class=Config):
     from app.routes.auth import auth
     from app.routes.users import users
     from app.routes.chat import chat
-    
+    from app.routes.feedback import feedback
+
     app.register_blueprint(auth, url_prefix='/api/auth')
     app.register_blueprint(users, url_prefix='/api/users')
     app.register_blueprint(chat, url_prefix='/api/chat')
+    app.register_blueprint(feedback, url_prefix='/api/feedback')
 
     # Add this to test the connection
     @app.route('/test-db')

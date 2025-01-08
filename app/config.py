@@ -21,3 +21,4 @@ class Config:
             'client_secret': os.environ.get('GOOGLE_CLIENT_SECRET')
         }
     }
+    ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'your-email@example.com')
