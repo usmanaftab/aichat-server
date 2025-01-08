@@ -30,6 +30,41 @@ A Flask-based REST API that provides a secure chat interface with AI, featuring 
 - SMTP server access (for email functionality)
 - Google OAuth credentials (for social login)
 
+## Ollama Setup
+
+1. **Install Ollama**
+   ```bash
+   # For macOS or Linux
+   curl -fsSL https://ollama.com/install.sh | sh
+   
+   # For Windows
+   # Download from https://ollama.com/download/windows
+   ```
+
+2. **Start Ollama Server**
+   ```bash
+   ollama serve
+   ```
+
+3. **Pull the LLaMA Model**
+   ```bash
+   ollama pull llama3.2
+   ```
+
+4. **Test Ollama**
+   ```bash
+   # In a new terminal
+   curl http://localhost:11434/api/generate -d '{
+     "model": "llama3.2",
+     "prompt": "Hello, how are you?"
+   }'
+   ```
+
+5. **Verify API Access**
+   - Ensure Ollama is running on `http://localhost:11434`
+   - The Flask app will communicate with this endpoint
+   - Default model used: `llama3.2`
+
 ## Quick Start
 
 1. **Clone the repository**
