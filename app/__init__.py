@@ -17,7 +17,6 @@ logger = get_logger(__name__)
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-    app.config['MONGODB_HOST'] = os.getenv('MONGODB_URI')
 
     # Setup logging
     setup_logger(app)

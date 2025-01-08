@@ -13,6 +13,8 @@ class Config:
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') or True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    WEB_CLIENT_URL = os.environ.get('WEB_CLIENT_URL')
+    MONGODB_HOST = os.environ.get('MONGODB_URI')
     OAUTH_CREDENTIALS = {
         'google': {
             'client_id': os.environ.get('GOOGLE_CLIENT_ID'),
