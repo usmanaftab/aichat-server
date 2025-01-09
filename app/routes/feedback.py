@@ -1,13 +1,11 @@
 from flask import Blueprint, request, jsonify
 from app.utils.email import send_email
 from app.config import Config
-from flask_jwt_extended import jwt_required
 feedback = Blueprint('feedback', __name__)
 
 feedback = Blueprint('feedback', __name__)
 
 @feedback.route('/submit', methods=['POST'])
-@jwt_required()
 def submit_feedback():
     data = request.get_json()
     
