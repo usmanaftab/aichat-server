@@ -20,7 +20,7 @@ def create_app(config_class=Config):
 
     # Setup logging
     setup_logger(app)
-    
+
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
