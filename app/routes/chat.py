@@ -16,7 +16,7 @@ def send_chat():
     try:
         user_id = get_jwt_identity()
         data = request.get_json()
-        
+
         if not data or 'message' not in data:
             return jsonify({'error': 'Message is required'}), 400
 
@@ -39,21 +39,21 @@ def send_chat():
             f"{'User' if msg['role'] == 'user' else 'Assistant'}: {msg['content']}"
             for msg in chat_session.messages
         ])
-        
+
         # Prepare prompt with context
         full_prompt = f"{context}\nUser: {data['message']}\nAssistant:"
 
         # Ollama API endpoint
         ollama_url = "http://localhost:11434/api/generate"
         payload = {
-            "model": "llama3.2",
+            "model": "llama3.2:1b",
             "prompt": full_prompt,
             "stream": False
         }
 
         # Send request to Ollama
         response = requests.post(ollama_url, json=payload)
-        
+
         if response.status_code == 200:
             result = response.json()
             ai_response = result.get('response', '')
@@ -100,4 +100,4 @@ def send_chat():
                 'max_requests': 15,
                 'reset_time': 'midnight UTC'
             }
-        }), 500 
+        }), 500
