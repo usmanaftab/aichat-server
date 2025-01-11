@@ -42,7 +42,11 @@ def send_chat():
             'content': data['message']
         })
 
-        response = current_app.huggingface_client.chat_completion(chat_session.messages, model="meta-llama/Meta-Llama-3-8B-Instruct")
+        response = current_app.huggingface_client.chat_completion(
+            chat_session.messages,
+            model="meta-llama/Meta-Llama-3-8B-Instruct",
+            stream=False
+          )
         ai_response = response.choices[0].message.content
 
         # Save messages to context and set TTL
