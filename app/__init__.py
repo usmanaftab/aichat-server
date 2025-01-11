@@ -7,6 +7,7 @@ from app.utils.logger import setup_logger, get_logger
 from dotenv import load_dotenv
 import os
 from flask_cors import CORS
+from huggingface_hub import InferenceClient
 
 load_dotenv()
 
@@ -29,6 +30,10 @@ def create_app(config_class=Config):
     # Log startup information
     logger.info('Application starting up...')
     logger.debug(f'MongoDB URI: {os.getenv("MONGODB_URI", "Not set")}')
+
+    client = InferenceClient(token=app.config['HUGGING_FACE_API_TOKEN'])
+    app.huggingface_client = client
+    logger.info('Hugging Face client initialized')
 
     # Register blueprints
     from app.routes.auth import auth

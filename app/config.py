@@ -22,3 +22,4 @@ class Config:
         }
     }
     ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'your-email@example.com')
+    HUGGING_FACE_API_TOKEN = os.getenv('HUGGING_FACE_API_TOKEN')
