@@ -44,6 +44,7 @@ def send_chat():
 
         response = current_app.huggingface_client.chat_completion(
             chat_session.messages,
+            max_tokens=1000,
             model="meta-llama/Meta-Llama-3-8B-Instruct",
             stream=False
           )
