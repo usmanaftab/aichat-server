@@ -45,7 +45,7 @@ def send_chat():
         response = current_app.huggingface_client.chat_completion(
             chat_session.messages,
             max_tokens=1000,
-            model="meta-llama/Meta-Llama-3-8B-Instruct",
+            model="meta-llama/Llama-3.1-8B-Instruct",
             stream=False
           )
         ai_response = response.choices[0].message.content
