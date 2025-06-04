@@ -15,6 +15,7 @@ db = MongoEngine()
 jwt = JWTManager()
 logger = get_logger(__name__)
 
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -36,10 +37,16 @@ def create_app(config_class=Config):
     logger.info('Hugging Face client initialized')
 
     # Register blueprints
+    logger.info('Registering blueprints 1')
     from app.routes.auth import auth
+    logger.info('Importing blueprints auth')
     from app.routes.users import users
+    logger.info('Importing blueprints users')
     from app.routes.chat import chat
+    logger.info('Importing blueprints chat')
     from app.routes.feedback import feedback
+    logger.info('Importing blueprints feedback')
+    logger.info('Registering blueprints 2')
 
     app.register_blueprint(auth, url_prefix='/api/auth')
     app.register_blueprint(users, url_prefix='/api/users')
