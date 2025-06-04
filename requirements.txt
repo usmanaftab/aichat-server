@@ -1,4 +1,3 @@
-altgraph @ file:///AppleInternal/Library/BuildRoots/2c89a47b-9dd5-11ef-938f-6e654a286000/Library/Caches/com.apple.xbs/Sources/python3/altgraph-0.17.2-py2.py3-none-any.whl
 aniso8601==9.0.1
 annotated-types==0.7.0
 anyio==4.9.0
@@ -22,7 +21,6 @@ flask-mongoengine==1.0.0
 Flask-RESTful==0.3.10
 Flask-WTF==1.2.2
 fsspec==2024.12.0
-future @ file:///AppleInternal/Library/BuildRoots/2c89a47b-9dd5-11ef-938f-6e654a286000/Library/Caches/com.apple.xbs/Sources/python3/future-0.18.2-py3-none-any.whl
 git-remote-codecommit==1.17
 greenlet==3.2.2
 gunicorn==23.0.0
@@ -45,7 +43,6 @@ langgraph-checkpoint==2.0.26
 langgraph-prebuilt==0.2.2
 langgraph-sdk==0.1.70
 langsmith==0.3.44
-macholib @ file:///AppleInternal/Library/BuildRoots/2c89a47b-9dd5-11ef-938f-6e654a286000/Library/Caches/com.apple.xbs/Sources/python3/macholib-1.15.2-py2.py3-none-any.whl
 MarkupSafe==3.0.2
 mongoengine==0.29.1
 mpmath==1.3.0
