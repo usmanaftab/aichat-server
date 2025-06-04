@@ -7,8 +7,10 @@ import uuid
 from app.utils.request_limiter import check_request_quota
 from app.models.request_quota import RequestQuota
 from flask import current_app
+from app.utils.model_graph import graph
 
 chat = Blueprint('chat', __name__)
+
 
 @chat.route('/send', methods=['POST'])
 @jwt_required()
@@ -27,7 +29,8 @@ def send_chat():
         # Get or create chat context
         context_id = data.get('context_id')
         if context_id:
-            chat_session = Chat.objects(context_id=context_id, user_id=user_id).first()
+            chat_session = Chat.objects(
+                context_id=context_id, user_id=user_id).first()
             if not chat_session:
                 return jsonify({'error': 'Invalid context ID'}), 404
         else:
@@ -42,15 +45,17 @@ def send_chat():
             'content': data['message']
         })
 
-        response = current_app.huggingface_client.chat_completion(
-            chat_session.messages,
-            max_tokens=1000,
-            model="meta-llama/Llama-3.1-8B-Instruct",
-            stream=False
-          )
-        ai_response = response.choices[0].message.content
+        # response = current_app.huggingface_client.chat_completion(
+        #     chat_session.messages,
+        #     max_tokens=1000,
+        #     model="meta-llama/Llama-3.1-8B-Instruct",
+        #     stream=False
+        # )
+        # ai_response = response.choices[0].message.content
 
-        # Save messages to context and set TTL
+        resp = graph.invoke({"messages": chat_session.messages})
+        ai_response = resp["messages"][-1].content
+
         chat_session.messages.append({
             'role': 'assistant',
             'content': ai_response
