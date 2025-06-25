@@ -7,5 +7,11 @@ class Chat(Document):
     messages = ListField(DictField(), default=[])
     created_at = DateTimeField(default=datetime.utcnow)
     updated_at = DateTimeField(default=datetime.utcnow)
+    ttl = DateTimeField(default=datetime.utcnow)
 
-    meta = {'collection': 'chats'} 
+    meta = {
+        'collection': 'chats',
+        'indexes': [
+            {'fields': ['ttl'], 'expireAfterSeconds': 0}
+        ]
+    }
