@@ -238,6 +238,30 @@ Standard HTTP status codes are used:
 - 429: Too Many Requests (quota exceeded)
 - 500: Internal Server Error
 
+## Serverless Deployment with AWS CLI
+
+This repository includes a `template.yaml` CloudFormation template to
+deploy the application as an AWS Lambda function behind API Gateway.
+
+1. **Package the application**
+   ```bash
+   aws cloudformation package \
+       --template-file template.yaml \
+       --s3-bucket <your-deployment-bucket> \
+       --output-template-file packaged.yaml
+   ```
+
+2. **Deploy the stack**
+   ```bash
+   aws cloudformation deploy \
+       --template-file packaged.yaml \
+       --stack-name aichat-api \
+       --capabilities CAPABILITY_IAM
+   ```
+
+The deployment output includes the API Gateway URL that serves the
+Flask application via Lambda.
+
 ## Contributing
 
 1. Fork the repository
