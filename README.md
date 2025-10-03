@@ -1,6 +1,6 @@
 # AI Chat API
 
-A Flask-based REST API that provides a secure chat interface with AI, featuring user authentication, request quota management, and detailed logging.
+A Flask-based REST API that provides a secure chat interface with AI, featuring user authentication, request quota management, and detailed logging. Deployable on AWS Lambda with API Gateway integration.
 
 ## Features
 
@@ -36,7 +36,7 @@ A Flask-based REST API that provides a secure chat interface with AI, featuring 
    ```bash
    # For macOS or Linux
    curl -fsSL https://ollama.com/install.sh | sh
-   
+
    # For Windows
    # Download from https://ollama.com/download/windows
    ```
@@ -237,6 +237,52 @@ Standard HTTP status codes are used:
 - 401: Unauthorized
 - 429: Too Many Requests (quota exceeded)
 - 500: Internal Server Error
+
+## AWS Lambda Deployment
+
+The application can be deployed as a serverless application using AWS Lambda and API Gateway.
+
+### Prerequisites for AWS Deployment
+
+- AWS CLI installed and configured
+- Python 3.9 or higher
+- An AWS account with appropriate permissions
+
+### Deployment Steps
+
+1. Make the deployment scripts executable:
+   ```bash
+   chmod +x scripts/build.sh scripts/deploy.sh
+   ```
+
+2. Build and package the application:
+   ```bash
+   # This will package the application and upload to S3
+   ./scripts/build.sh dev  # or prod for production
+   ```
+
+3. Deploy the application:
+   ```bash
+   # This will deploy using CloudFormation and configure environment variables
+   ./scripts/deploy.sh dev  # or prod for production
+   ```
+
+The deployment scripts will:
+- Automatically create required S3 buckets
+- Package and upload the application
+- Deploy using CloudFormation
+- Configure Lambda environment variables from your .env file
+- Display the API Gateway endpoint URL### Environment Variables in AWS
+
+Configure these in the Lambda function's environment variables:
+- All variables from your .env file
+- `FLASK_ENV`: Environment name (dev/prod)
+
+### Monitoring and Logs
+
+- View application logs in CloudWatch Logs
+- Monitor Lambda metrics in CloudWatch Metrics
+- API Gateway provides additional metrics and logging capabilities
 
 ## Contributing
 

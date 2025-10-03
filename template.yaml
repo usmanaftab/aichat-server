@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AIChat App Lambda deployment with API Gateway'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    Description: Environment name
+
+Resources:
+  AIchatLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub aichat-server-${Environment}
+      Handler: lambda_handler.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Sub ${AWS::AccountId}-${Environment}-lambdas
+        S3Key: aichat-server.zip
+      Runtime: python3.9
+      Timeout: 30
+      MemorySize: 512
+      Environment:
+        Variables:
+          FLASK_ENV: !Ref Environment
+          # These variables will be overwritten by the deploy script
+          # This is just a placeholder to show what variables are expected
+          MONGODB_URI: placeholder
+          SECRET_KEY: placeholder
+          JWT_SECRET_KEY: placeholder
+          MAIL_SERVER: placeholder
+          MAIL_PORT: placeholder
+          MAIL_USE_TLS: placeholder
+          MAIL_USERNAME: placeholder
+          MAIL_PASSWORD: placeholder
+          GOOGLE_CLIENT_ID: placeholder
+          GOOGLE_CLIENT_SECRET: placeholder
+          FRONTEND_URL: placeholder
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  AIchatApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub aichat-api-${Environment}
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  AIchatApiResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt AIchatApi.RootResourceId
+      PathPart: '{proxy+}'
+      RestApiId: !Ref AIchatApi
+
+  AIchatApiMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: ANY
+      ResourceId: !Ref AIchatApiResource
+      RestApiId: !Ref AIchatApi
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AIchatLambdaFunction.Arn}/invocations
+
+  AIchatApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - AIchatApiMethod
+    Properties:
+      RestApiId: !Ref AIchatApi
+
+  AIchatApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId: !Ref AIchatApiDeployment
+      RestApiId: !Ref AIchatApi
+      StageName: !Ref Environment
+
+  LambdaApiGatewayPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt AIchatLambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AIchatApi}/*/*
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub https://${AIchatApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/
