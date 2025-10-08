@@ -20,7 +20,7 @@ Resources:
       Code:
         S3Bucket: !Sub ${AWS::AccountId}-${Environment}-lambdas
         S3Key: aichat-server.zip
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 30
       MemorySize: 512
       Environment:
