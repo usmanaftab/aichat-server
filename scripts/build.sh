@@ -39,14 +39,28 @@ rsync -av --progress . "$BUILD_DIR/" \
     --exclude '.vscode' \
     --exclude "$PACKAGE_NAME" \
     --exclude 'build' \
-    --exclude 'scripts'
+    --exclude 'scripts' \
+    --exclude 'logs' \
+    --exclude 'logs/*'
 
 cd "$BUILD_DIR"
 
 # Install dependencies to include in the package
 echo "Installing dependencies..."
 if [ -f requirements.txt ]; then
-    pip install --target . -r requirements.txt
+    # Create and activate a temporary virtual environment
+    python3 -m venv .venv
+    source .venv/bin/activate
+
+    # Upgrade pip and install wheel
+    pip install --upgrade pip wheel
+
+    # Install dependencies into the package directory
+    pip install -r requirements.txt --target . --no-cache-dir --upgrade
+
+    # Deactivate and remove the virtual environment
+    deactivate
+    rm -rf .venv
 else
     echo "Error: requirements.txt not found in build directory"
     exit 1

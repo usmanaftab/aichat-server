@@ -24,12 +24,23 @@ if [ ! -f "$ENV_FILE" ]; then
     exit 1
 fi
 
+# Set allowed origins based on environment
+if [ "$ENVIRONMENT" = "dev" ]; then
+    # For development, you might want to allow both localhost:3000 and localhost:3001
+    ALLOWED_ORIGINS="http://localhost:3000"
+else
+    # For production, you can specify multiple domains without spaces
+    ALLOWED_ORIGINS="https://usmanaftab.github.io,https://ai.usmanaftab.com,https://usmanaftab.com"  # Replace with your production domains
+fi
+
 # Deploy CloudFormation stack
 echo "Deploying CloudFormation stack..."
 aws cloudformation deploy \
     --template-file "$TEMPLATE_PATH" \
     --stack-name "$STACK_NAME" \
-    --parameter-overrides Environment="$ENVIRONMENT" \
+    --parameter-overrides \
+        Environment="$ENVIRONMENT" \
+        AllowedOrigins="$ALLOWED_ORIGINS" \
     --capabilities CAPABILITY_IAM
 
 # Get Lambda function name from CloudFormation
@@ -86,6 +97,22 @@ echo "$FULL_ENV_JSON" | jq '.' || {
     echo "Error: Failed to parse environment variables JSON"
     exit 1
 }
+
+# Update Lambda function code to use the latest S3 package
+echo "Updating Lambda function code..."
+aws lambda update-function-code \
+    --function-name "$FUNCTION_NAME" \
+    --s3-bucket "${ACCOUNT_ID}-${ENVIRONMENT}-lambdas" \
+    --s3-key "aichat-server.zip" \
+    --publish
+
+# Wait for the update to complete
+echo "Waiting for Lambda update to complete..."
+aws lambda wait function-updated --function-name "$FUNCTION_NAME"
+
+# Verify the update
+LAST_MODIFIED=$(aws lambda get-function --function-name "$FUNCTION_NAME" --query 'Configuration.LastModified' --output text)
+echo "Lambda function code updated. Last modified: $LAST_MODIFIED"
 
 # Update Lambda configuration with environment variables
 echo "Updating Lambda configuration..."

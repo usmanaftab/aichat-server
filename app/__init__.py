@@ -20,6 +20,28 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    # Initialize CORS with credentials support
+    allowed_origins = os.getenv('ALLOWED_ORIGINS', '*').split(',')
+    CORS(app, resources={
+        r"/*": {
+            "origins": allowed_origins,
+            "allow_headers": [
+                "Content-Type",
+                "Authorization",
+                "Access-Control-Allow-Credentials",
+                "X-Amz-Date",
+                "X-Api-Key",
+                "X-Amz-Security-Token"
+            ],
+            "expose_headers": [
+                "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Credentials"
+            ],
+            "supports_credentials": True,
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        }
+    })
+
     # Setup logging
     setup_logger(app)
 
@@ -64,13 +86,13 @@ def create_app(config_class=Config):
             logger.error(f'Failed to connect to MongoDB: {str(e)}')
             return f'Failed to connect to MongoDB: {str(e)}'
 
-    CORS(app, resources={
-        r"/*": {
-            "origins": ["http://localhost:3000", "https://usmanaftab.github.io", "https://ai.usmanaftab.com", "https://usmanaftab.com"],
-            "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
-            "supports_credentials": True
-        }
-    })
+    # CORS(app, resources={
+    #     r"/*": {
+    #         "origins": ["http://localhost:3000", "https://usmanaftab.github.io", "https://ai.usmanaftab.com", "https://usmanaftab.com"],
+    #         "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+    #         "supports_credentials": True
+    #     }
+    # })
 
     logger.info('Application setup completed')
     return app
